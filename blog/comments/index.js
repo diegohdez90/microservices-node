@@ -9,7 +9,7 @@ app.use(cors());
 
 const commentsByPostId = {};
 
-app.get('posts/:id/comments', (req, res) => {
+app.get('/posts/:id/comments', (req, res) => {
   res.send(commentsByPostId[req.params.id] || []);
 });
 
