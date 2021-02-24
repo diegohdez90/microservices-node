@@ -13,31 +13,40 @@ app.get('/posts', (req, res) => {
 });
 
 app.post('/events', (req, res) => {
+  console.log('query events');
   const { type, data } = req.body;
 
-  switch (type) {
-    case 'POST_CREATED':
-      const { id: postIdCreated, title } = data;
-      posts[postIdCreated] = {
-        id: postIdCreated,
-        title,
-        comments: []
-      };
-      break;
-    case 'COMMENT_CREATED':
-        const {
-          id: commentId,
-          content,
-          postId
-        } = data;
-        const post = posts[postId];
-        post.comments.push({
-          id: commentId,
-          content
-        });
-        break;
-    default:
-      break;
+  if (type === 'POST_CREATED') {
+    const { id: postIdCreated, title } = data;
+    posts[postIdCreated] = {
+      id: postIdCreated,
+      title,
+      comments: []
+    };
+  } else if (type === 'COMMENT_CREATED') {
+    const {
+      id: commentId,
+      content,
+      postId,
+      status
+    } = data;
+    const post = posts[postId];
+    post.comments.push({
+      id: commentId,
+      content,
+      status,
+    });
+  } else if (type === 'COMMENT_UPDATED') {
+    const {
+      id,
+      content,
+      postId,
+      status
+    } = data;
+    const post = posts[postId];
+    const comment = post.comments.find(commentItem => commentItem.id === id);
+    comment.status = status;
+    comment.content = content;
   }
 
   console.log('posts', posts);
