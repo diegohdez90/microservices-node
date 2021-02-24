@@ -1,5 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const axios = require('axios');
 const cors = require('cors');
 
 const app = express();
@@ -8,14 +9,7 @@ app.use(cors());
 
 const posts = {};
 
-app.get('/posts', (req, res) => {
-  res.send(posts);
-});
-
-app.post('/events', (req, res) => {
-  console.log('query events');
-  const { type, data } = req.body;
-
+const handleEvent = (type, data) => {
   if (type === 'POST_CREATED') {
     const { id: postIdCreated, title } = data;
     posts[postIdCreated] = {
@@ -47,13 +41,44 @@ app.post('/events', (req, res) => {
     const comment = post.comments.find(commentItem => commentItem.id === id);
     comment.status = status;
     comment.content = content;
-  }
+  } 
+}
 
-  console.log('posts', posts);
+app.get('/posts', (req, res) => {
+  res.send(posts);
+});
+
+app.post('/events', (req, res) => {
+  console.log('query events');
+  const { type, data } = req.body;
+
+  handleEvent(type, data);
 
   res.send({});
 });
 
-app.listen(4002, () => {
+app.listen(4002, async () => {
   console.log('listen query');
+
+  const res = await axios.get('http://localhost:4005/events');
+  for (let event of res.data) {
+    console.log('processing event', event.type);
+    handleEvent(event.type, event.data)
+  }
 });
+
+/* 
+  axios.post('http://localhost:4000/events', event).catch((err) => {
+    console.log(err.message);
+  });
+  axios.post('http://localhost:4001/events', event).catch((err) => {
+    console.log(err.message);
+  });
+  axios.post('http://localhost:4002/events', event).catch((err) => {
+    console.log(err.message);
+  });
+  axios.post('http://localhost:4003/events', event).catch((err) => {
+    console.log(err.message);
+  });
+  res.send({ status: 'OK' });
+*/
