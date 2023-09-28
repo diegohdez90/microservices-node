@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: posts
+spec:
+  containers:
+    - name: posts
+      image: diegohdez90/docker-blog-posts:0.0.1
+      # imagePullPolicy: Never
+
